@@ -108,4 +108,38 @@ RSpec.describe Api::V1::ArticlesController do
       end
     end
   end
+
+  describe "DELETE #destroy" do
+    describe 'with a valid ID' do
+      before(:each) do
+        @article = create(:article)
+        delete "/api/v1/articles/#{@article.id}"
+      end
+
+      it "returns 204 (no content)" do
+        expect(response).to have_http_status(204)
+        expect(response.body).to eq('')
+      end
+    end
+
+    describe 'with an invalid ID' do
+      before(:each) do
+        article = create(:article)
+        @id = article.id + 1
+        delete "/api/v1/articles/#{@id}"
+      end
+
+      it "returns 404" do
+        expect(response).to have_http_status(404)
+      end
+
+      it "returns an error" do
+        body = JSON.parse(response.body)
+
+        expect(body).to eq(
+          {"error" => "No article with ID #{@id}"}
+        )
+      end
+    end
+  end
 end

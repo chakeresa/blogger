@@ -1,10 +1,11 @@
 class Api::V1::ArticlesController < ApplicationController
+  before_action :load_article, only: [:show, :destroy]
   def index
     render json: ArticleSerializer.render(Article.all)
   end
 
   def show
-    render json: ArticleSerializer.render(Article.find(params[:id]))
+    render json: ArticleSerializer.render(@article)
   end
 
   def create
@@ -17,9 +18,24 @@ class Api::V1::ArticlesController < ApplicationController
     end
   end
 
+  def destroy
+    @article.destroy
+    render status: :no_content
+  end
+
   private
 
   def article_params
     params.require(:article).permit(:title, :body)
+  end
+
+  def load_article
+    id = params[:id]
+
+    begin
+      @article = Article.find(id)
+    rescue ActiveRecord::RecordNotFound
+      render json: {error: "No article with ID #{id}"}, status: :not_found
+    end
   end
 end
