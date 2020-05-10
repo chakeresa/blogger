@@ -102,32 +102,58 @@ RSpec.describe Api::V1::CommentsController do
   describe "DELETE #destroy" do
     describe 'with a valid ID' do
       before(:each) do
-        @comment = create(:comment)
-        delete "/api/v1/comments/#{@comment.id}"
+        article = create(:article)
+        comment = create(:comment, article: article)
+
+        delete "/api/v1/articles/#{article.id}/comments/#{comment.id}"
       end
 
-      xit "returns 204 (no content)" do
+      it "returns 204 (no content)" do
         expect(response).to have_http_status(204)
         expect(response.body).to eq('')
       end
     end
 
-    describe 'with an invalid ID' do
+    describe 'with an invalid comment ID' do
       before(:each) do
-        comment = create(:comment)
-        @id = comment.id + 1
-        delete "/api/v1/comments/#{@id}"
+        @article = create(:article)
+        comment = create(:comment, article: @article)
+        @comment_id_visited = comment.id + 1
+
+        delete "/api/v1/articles/#{@article.id}/comments/#{@comment_id_visited}"
       end
 
-      xit "returns 404" do
+      it "returns 404" do
         expect(response).to have_http_status(404)
       end
 
-      xit "returns an error" do
+      it "returns an error" do
         body = JSON.parse(response.body)
 
         expect(body).to eq(
-          {"error" => "No comment with ID #{@id}"}
+          {"error" => "No comment with ID #{@comment_id_visited} for article with ID #{@article.id}"}
+        )
+      end
+    end
+
+    describe 'with an invalid article ID' do
+      before(:each) do
+        @other_article = create(:article)
+        article = create(:article)
+        @comment = create(:comment, article: article)
+
+        delete "/api/v1/articles/#{@other_article.id}/comments/#{@comment.id}"
+      end
+
+      it "returns 404" do
+        expect(response).to have_http_status(404)
+      end
+
+      it "returns an error" do
+        body = JSON.parse(response.body)
+
+        expect(body).to eq(
+          {"error" => "No comment with ID #{@comment.id} for article with ID #{@other_article.id}"}
         )
       end
     end
