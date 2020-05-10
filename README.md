@@ -1,5 +1,7 @@
 # README
 
+Roughly based on https://backend.turing.io/module2/misc/blogger / https://github.com/turingschool/backend-curriculum-site/blob/gh-pages/module2/misc/blogger_iteration_0.md
+
 This README would normally document whatever steps are necessary to get the
 application up and running.
 
