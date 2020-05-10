@@ -162,49 +162,31 @@ RSpec.describe Api::V1::CommentsController do
   describe "PATCH #update" do
     describe 'with valid attributes' do
       before(:each) do
-        @comment = create(:comment)
-        @valid_attrs = { title: Faker::Dessert.flavor }
+        @article = create(:article)
+        @comment = create(:comment, article: @article)
 
-        patch "/api/v1/comments/#{@comment.id}", params: { comment: @valid_attrs }
+        @valid_attrs = { body: Faker::Movies::StarWars.quote }
+
+        patch "/api/v1/articles/#{@article.id}/comments/#{@comment.id}", params: { comment: @valid_attrs }
       end
   
-      xit "returns 200" do
+      it "returns 200" do
         expect(response).to have_http_status(200)
       end
   
-      xit "outputs data for the updated comment" do
+      it "outputs data for the updated comment" do
         comment = JSON.parse(response.body)
   
         expect(comment.class).to eq(Hash)
   
         expected_hash = {
-          "title" => @valid_attrs[:title],
-          "body" => @comment.body,
-          "id" => @comment.id
+          "article_id" => @article.id,
+          "author_name" => @comment.author_name,
+          "body" => @valid_attrs[:body],
+          "id" => @comment.id,
         }
 
         expect(comment).to eq(expected_hash)
-      end
-    end
-
-    describe 'with invalid attributes' do
-      before(:each) do
-        @comment = create(:comment)
-        @invalid_attrs = { title: nil }
-
-        patch "/api/v1/comments/#{@comment.id}", params: { comment: @invalid_attrs }
-      end
-  
-      xit "returns 422" do
-        expect(response).to have_http_status(422)
-      end
-  
-      xit "lists errors" do
-        json = JSON.parse(response.body)
-  
-        expect(json.class).to eq(Hash)
-  
-        expect(json["errors"]).to eq({ "title" => ["can't be blank"] })
       end
     end
   end
