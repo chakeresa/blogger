@@ -36,26 +36,30 @@ RSpec.describe Api::V1::CommentsController do
 
   describe "GET #show" do
     before(:each) do
-      @count = 5
-      @first_comment = create(:comment)
-      @other_comments =  create_list(:comment, @count - 1)
+      @article = create(:article)
+      comments = create_list(:comment, 3, article: @article)
+      @first_comment = comments.first
+
+      other_article = create(:article)
+      create(:comment, article: other_article)
+
+      get "/api/v1/articles/#{@article.id}/comments/#{@first_comment.id}"
     end
 
-    xit "returns 200" do
-      get "/api/v1/comments/#{@first_comment.id}"
+    it "returns 200" do
       expect(response).to have_http_status(200)
     end
 
-    xit "outputs data for a single comment" do
-      get "/api/v1/comments/#{@first_comment.id}"
+    it "outputs data for a single comment" do
       comment = JSON.parse(response.body)
 
       expect(comment.class).to eq(Hash)
 
       expected_hash = {
+        "article_id" => @article.id,
+        "author_name" => @first_comment.author_name,
+        "body" => @first_comment.body,
         "id" => @first_comment.id,
-        "title" => @first_comment.title,
-        "body" => @first_comment.body
       }
       expect(comment).to eq(expected_hash)
     end
