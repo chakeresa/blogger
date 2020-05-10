@@ -67,7 +67,7 @@ RSpec.describe Api::V1::ArticlesController do
           )
         }
 
-        post "/api/v1/articles", params: {article: @valid_attrs}
+        post "/api/v1/articles", params: { article: @valid_attrs }
       end
   
       it "returns 201" do
@@ -92,7 +92,7 @@ RSpec.describe Api::V1::ArticlesController do
           # no body given
         }
 
-        post "/api/v1/articles", params: {article: @invalid_attrs}
+        post "/api/v1/articles", params: { article: @invalid_attrs }
       end
   
       it "returns 422" do
@@ -104,7 +104,7 @@ RSpec.describe Api::V1::ArticlesController do
   
         expect(json.class).to eq(Hash)
   
-        expect(json["errors"]).to eq({"body" => ["can't be blank"]})
+        expect(json["errors"]).to eq({ "body" => ["can't be blank"] })
       end
     end
   end
@@ -139,6 +139,56 @@ RSpec.describe Api::V1::ArticlesController do
         expect(body).to eq(
           {"error" => "No article with ID #{@id}"}
         )
+      end
+    end
+  end
+
+  describe "PATCH #update" do
+    describe 'with valid attributes' do
+      before(:each) do
+        @article = create(:article)
+        @valid_attrs = { title: Faker::Dessert.flavor }
+
+        patch "/api/v1/articles/#{@article.id}", params: { article: @valid_attrs }
+      end
+  
+      it "returns 200" do
+        expect(response).to have_http_status(200)
+      end
+  
+      it "outputs data for the updated article" do
+        article = JSON.parse(response.body)
+  
+        expect(article.class).to eq(Hash)
+  
+        expected_hash = {
+          "title" => @valid_attrs[:title],
+          "body" => @article.body,
+          "id" => @article.id
+        }
+
+        expect(article).to eq(expected_hash)
+      end
+    end
+
+    describe 'with invalid attributes' do
+      before(:each) do
+        @article = create(:article)
+        @invalid_attrs = { title: nil }
+
+        patch "/api/v1/articles/#{@article.id}", params: { article: @invalid_attrs }
+      end
+  
+      it "returns 422" do
+        expect(response).to have_http_status(422)
+      end
+  
+      it "lists errors" do
+        json = JSON.parse(response.body)
+  
+        expect(json.class).to eq(Hash)
+  
+        expect(json["errors"]).to eq({ "title" => ["can't be blank"] })
       end
     end
   end
