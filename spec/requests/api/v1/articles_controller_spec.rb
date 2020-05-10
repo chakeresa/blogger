@@ -30,18 +30,17 @@ RSpec.describe Api::V1::ArticlesController do
 
   describe "GET #show" do
     before(:each) do
-      @count = 5
       @first_article = create(:article)
-      @other_articles =  create_list(:article, @count - 1)
+      create_list(:article, 2)
+
+      get "/api/v1/articles/#{@first_article.id}"
     end
 
     it "returns 200" do
-      get "/api/v1/articles/#{@first_article.id}"
       expect(response).to have_http_status(200)
     end
 
     it "outputs data for a single article" do
-      get "/api/v1/articles/#{@first_article.id}"
       article = JSON.parse(response.body)
 
       expect(article.class).to eq(Hash)

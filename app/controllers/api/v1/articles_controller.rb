@@ -1,5 +1,6 @@
 class Api::V1::ArticlesController < ApplicationController
   before_action :load_article, only: [:show, :destroy, :update]
+
   def index
     render json: ArticleSerializer.render(Article.all)
   end
