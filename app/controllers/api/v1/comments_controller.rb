@@ -10,6 +10,16 @@ class Api::V1::CommentsController < ApplicationController
     render json: CommentSerializer.render(@comment)
   end
 
+  def create
+    comment = @article.comments.build(comment_params)
+
+    if comment.save
+      render json: CommentSerializer.render(comment), status: :created
+    else
+      render json: { errors: comment.errors }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def load_article
@@ -30,5 +40,9 @@ class Api::V1::CommentsController < ApplicationController
     rescue ActiveRecord::RecordNotFound
       render json: { error: "No comment with ID #{id}" }, status: :not_found
     end
+  end
+
+  def comment_params
+    params.require(:comment).permit(:author_name, :body)
   end
 end
